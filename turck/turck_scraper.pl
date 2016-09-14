@@ -3,11 +3,7 @@ use Web::Scraper;
 use Encode;
 use URI;
 use Data::Dumper;
-use Image::Grab;
-use Spreadsheet::WriteExcel;
 use WWW::Mechanize::Firefox;
-use WWW::Mechanize;
-use Mojo::DOM;
 
 open(my $fh, '>', 'product_links.txt') or die "Cannot open 'product_links.txt' $!";
 
