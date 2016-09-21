@@ -68,9 +68,23 @@ foreach my $link (@links){
             foreach my $link2 (@{$res2->{links}}){
                 if($link2=~/.*productdetails.*/){
                     warn Dumper $link2;
+                    print $fh $link2."\n";
+                }
+            }
+        }
+        else{
+            $link = $link."?view=&startat=1&sortorder=&sortby=&docpartno=&partnoname=&FormHandler_SelectBox_SearchField=&itemsperpage=$page#overview_prodlist";
+            warn Dumper $link;
+            my $res2 = $products->scrape( URI->new($link) );
+            foreach my $link2 (@{$res2->{links}}){
+                if($link2=~/.*productdetails.*/){
+                    warn Dumper $link2;
+                    print $fh $link2."\n";
                 }
             }
         }
 
     }
 }
+
+close $fh;
