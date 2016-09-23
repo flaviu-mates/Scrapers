@@ -20,6 +20,7 @@ my $details = scraper{
         process 'th', category => 'text';
         process 'td', "specs[]" => 'text';
     };
+    process 'div[class="teaser_small"]>img', image => '@src'
 };
 
 foreach my $link (<$fh>){
@@ -31,9 +32,12 @@ foreach my $link (<$fh>){
     eval{
         my $res = $details->scrape( URI->new($link) );
         my $breadcrumbs='';
+        my @folders;
         foreach my $breadcrumb (@{$res->{breadcrumbs}}){
             $breadcrumbs = $breadcrumbs.$breadcrumb.' -> ';
+            push @folders, $breadcrumb;
         }
+        warn Dumper @folders;
         $breadcrumbs = $breadcrumbs.$res->{title};
         warn Dumper $breadcrumbs;
         $worksheet->write($row, $column, $breadcrumbs);
@@ -68,6 +72,24 @@ foreach my $link (<$fh>){
         warn Dumper $specification;
         $worksheet->write($row, $column, $specification);
         $column = $column+1;
+
+        my $pic = new Image::Grab;
+        $pic->url($res->{image});
+        $pic->grab;
+        my $folder_final='';
+        foreach my $folder (@folders){
+            $folder_final = $folder_final.$folder.'/';
+            if(!(-e "Images/$folder_final" and -d "Images/$folder_final")){
+                mkdir "Images/$folder_final";
+            }
+        }
+        $res->{title} =~ s/\// /g;
+        $res->{title} =~ s/\,/ /g;
+        warn Dumper $res->{title};
+        open(IMAGE, ">Images/$folder_final/$res->{title}.png") || die"$res->{title}.png: $!";
+        binmode IMAGE;
+        print IMAGE $pic->image;
+        close IMAGE;
 
         $row = $row+1;
     };
